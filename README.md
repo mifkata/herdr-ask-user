@@ -7,8 +7,7 @@ Prime Agent 0.10 has no tool for asking the user a question, and it cannot load 
 ## 📦 Requirements
 
 - [herdr](https://herdr.dev/tui/docs/install/)
-- [Python](https://www.python.org/downloads/) 3
-- [Node.js](https://nodejs.org/en/download), for `npx`
+- [Node.js](https://nodejs.org/en/download)
 
 ## 🔧 Installation
 
@@ -35,7 +34,7 @@ Prime Agent 0.10 has no tool for asking the user a question, and it cannot load 
 
 ## 🧭 How it works
 
-The agent writes its questions as JSON and runs [`herdr-ask-user/scripts/ask-user.py`](herdr-ask-user/scripts/ask-user.py). The script opens the questions in herdr, waits for your answers, closes what it opened and prints the answers. The agent-side contract is in [`herdr-ask-user/SKILL.md`](herdr-ask-user/SKILL.md).
+The agent writes its questions as JSON and runs [`herdr-ask-user/scripts/ask-user.mjs`](herdr-ask-user/scripts/ask-user.mjs). The script opens the questions in herdr, waits for your answers, closes what it opened and prints the answers. The agent-side contract is in [`herdr-ask-user/SKILL.md`](herdr-ask-user/SKILL.md).
 
 Where the questions open depends on the herdr client you typed in last:
 
@@ -59,3 +58,4 @@ With more than one question, a review page lists every answer before you submit.
 | ← → | Previous or next question; move the cursor while typing in Other |
 | `N + notes` in Other | Choose option N and add notes |
 | Esc | Cancel; ignored while typing in Other |
+| Ctrl+C | Cancel |

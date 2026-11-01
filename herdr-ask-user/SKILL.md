@@ -1,7 +1,7 @@
 ---
 name: herdr-ask-user
 description: Ask the user one or more multiple-choice questions in a herdr pane or tab (numbered options, free-text "Other" answers, a question queue); answers come back as JSON. Use whenever you need a decision, a choice between options or a clarification from the user while running inside herdr. Not for Claude Code, which has its own AskUserQuestion tool.
-compatibility: Requires herdr (HERDR_PANE_ID set) and python3. Not for Claude Code.
+compatibility: Requires herdr (HERDR_PANE_ID set) and Node.js. Not for Claude Code.
 ---
 
 # herdr ask-user
@@ -13,7 +13,7 @@ In Claude Code, use the built-in AskUserQuestion tool instead; this skill refuse
 Write the questions as JSON and run the script; it opens below your pane (a full-screen tab when the user is attached over SSH), waits for the user, closes it and prints the answers:
 
 ```bash
-python3 <skill-dir>/scripts/ask-user.py questions.json   # or pipe JSON and pass -
+node <skill-dir>/scripts/ask-user.mjs questions.json   # or pipe JSON and pass -
 ```
 
 ```json
@@ -39,7 +39,7 @@ The call blocks until the user answers. In Prime Agent, run it with `bash(..., y
 ]}
 ```
 
-- `cancelled: true`: the user pressed Esc or closed the question; `answers` holds what was answered before. Do not re-ask unprompted.
+- `cancelled: true`: the user pressed Esc or Ctrl+C, or closed the question; `answers` holds what was answered before. Do not re-ask unprompted.
 - `notes`: the user picked option N through Other as `N + notes`; treat the notes as part of the answer.
 
 ## Exit codes
