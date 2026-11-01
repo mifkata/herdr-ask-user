@@ -32,6 +32,12 @@ Prime Agent 0.10 has no tool for asking the user a question, and it cannot load 
 
    The list shows `herdr-ask-user`. Start a new agent session to load it; Prime Agent's `/reload` does not pick up new skills.
 
+To update the skill later, run:
+
+```bash
+npx skills update herdr-ask-user -g
+```
+
 ## 🧭 How it works
 
 The agent writes its questions as JSON and runs [`herdr-ask-user/scripts/ask-user.mjs`](herdr-ask-user/scripts/ask-user.mjs). The script opens the questions in herdr, waits for your answers, closes what it opened and prints the answers. The agent-side contract is in [`herdr-ask-user/SKILL.md`](herdr-ask-user/SKILL.md).
@@ -52,7 +58,9 @@ With more than one question, a review page lists every answer before you submit.
 
 | Key | Action |
 | --- | --- |
-| ↑ ↓ | Move between options; past the first or last option, scroll |
+| ↑ ↓, or `j` `k` outside Other | Move between options; past the first or last option, scroll |
+| PgUp PgDn | Scroll one screen |
+| Mouse wheel | Scroll three lines |
 | 1–9, tap or click | Choose an option |
 | Enter | Confirm the option, or submit the Other answer |
 | ← → | Previous or next question; move the cursor while typing in Other |
