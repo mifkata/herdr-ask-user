@@ -7,6 +7,11 @@ import { fileURLToPath } from "node:url";
 
 const OTHER = 'Other (type, or "N + notes")';
 const PAD = 1;
+const RATIO = 0.6;
+const MIN_RATIO = 0.25;
+// Rows and columns a herdr pane rect loses to its frame.
+const FRAME_ROWS = 2;
+const FRAME_COLS = 3;
 const SCRIPT = fileURLToPath(import.meta.url);
 
 class Failure extends Error {
@@ -85,6 +90,18 @@ function activeClient() {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Top pane's share of the split: gives the question pane its tallest page, within MIN_RATIO and RATIO.
+function splitRatio(qs) {
+  try {
+    const panes = JSON.parse(herdr("pane", "layout", "--current").stdout).result.layout.panes;
+    const { height, width } = panes.find((p) => p.pane_id === process.env.HERDR_PANE_ID).rect;
+    const ratio = (height - tallestPage(qs, width - FRAME_COLS) - FRAME_ROWS) / height;
+    return Number.isFinite(ratio) ? Math.min(RATIO, Math.max(MIN_RATIO, ratio)) : RATIO;
+  } catch {
+    return RATIO;
+  }
+}
+
 async function ask(qs) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "herdr-ask-user-"));
   const out = path.join(tmp, "answers.json");
@@ -95,7 +112,7 @@ async function ask(qs) {
   const env = ["--env", `HERDR_ASK_NODE=${process.execPath}`, "--env", `HERDR_ASK_SCRIPT=${SCRIPT}`, "--env", `HERDR_ASK_DIR=${tmp}`];
   const made = overSsh
     ? herdr("tab", "create", "--workspace", workspace, "--cwd", tmp, "--label", "Question", "--focus", ...env)
-    : herdr("pane", "split", "--current", "--direction", "down", "--ratio", "0.6", "--cwd", tmp, ...env);
+    : herdr("pane", "split", "--current", "--direction", "down", "--ratio", String(splitRatio(qs)), "--cwd", tmp, ...env);
   if (made.status) {
     fs.rmSync(tmp, { recursive: true, force: true });
     throw new Failure(`herdr could not open the question: ${(made.stderr || made.stdout).trim()}`, 4);
@@ -189,11 +206,12 @@ function chunk(text, width) {
 }
 
 class Screen {
-  constructor() {
+  constructor(cols = size().cols) {
+    this.cols = cols;
     this.lines = [];
   }
   width() {
-    return Math.max(10, size().cols - 2 * PAD);
+    return Math.max(10, this.cols - 2 * PAD);
   }
   add(text, style = "", raw = false) {
     for (const ln of raw ? chunk(text, this.width()) : wrap(text, this.width())) this.lines.push([ln, style]);
@@ -325,7 +343,7 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
     const s = new Screen();
     header(s, head, title, context);
     const spans = [];
-    const items = other ? [...labels, `${labels.length + 1}. ${OTHER}`] : labels;
+    const items = other ? [...labels, otherLabel(labels.length)] : labels;
     items.forEach((text, n) => {
       if (st.answer && st.picked === n) text += " ✓";
       const start = s.lines.length;
@@ -418,6 +436,11 @@ function label(q, n) {
   return `${n + 1}. ${q.options[n]}${q.recommended === n + 1 ? " (recommended)" : ""}`;
 }
 
+const otherLabel = (count) => `${count + 1}. ${OTHER}`;
+const questionHead = (i, count) => `Question ${i + 1} of ${count}`;
+const REVIEW = ["Review", "Submit these answers?"];
+const REVIEW_ITEMS = ["1. Submit answers"];
+
 const questionFooter = (editing) =>
   editing
     ? "↑↓ move/scroll · ←→ cursor · Enter submit"
@@ -426,6 +449,26 @@ const reviewFooter = () => "← back · Enter or tap submit · Esc cancel";
 
 function summary(answers) {
   return answers.map((a, i) => [`Q${i + 1}. `, a.question, a.answer + (a.notes ? `\n${a.notes}` : "")]);
+}
+
+function pageRows(cols, head, title, context, items, footer) {
+  const s = new Screen(cols);
+  header(s, head, title, context);
+  items.forEach((text) => s.add(text));
+  return s.lines.length + s.footerLines(footer).length;
+}
+
+function tallestPage(qs, cols) {
+  const rows = qs.map((q, i) => {
+    const items = [...q.options.map((_, n) => label(q, n)), otherLabel(q.options.length), "Type here…"];
+    return pageRows(cols, questionHead(i, qs.length), q.question, q.context, items, questionFooter(false));
+  });
+  if (qs.length > 1) {
+    const longest = (q) => q.options.reduce((a, b) => (chars(b).length > chars(a).length ? b : a));
+    const answers = qs.map((q) => ({ question: q.question, answer: longest(q) }));
+    rows.push(pageRows(cols, ...REVIEW, summary(answers), REVIEW_ITEMS, reviewFooter()));
+  }
+  return Math.max(...rows);
 }
 
 function parseOther(q, text) {
@@ -448,13 +491,13 @@ async function tui(qs) {
     let act;
     if (qi === qs.length) {
       const answers = states.map((st) => st.answer);
-      act = await page(review, "Review", "Submit these answers?", summary(answers), ["1. Submit answers"], false, false, reviewFooter);
+      act = await page(review, ...REVIEW, summary(answers), REVIEW_ITEMS, false, false, reviewFooter);
       if (act[0] === "pick") return { cancelled: false, answers };
     } else {
       const q = qs[qi];
       const st = states[qi];
       const labels = q.options.map((_, n) => label(q, n));
-      act = await page(st, `Question ${qi + 1} of ${qs.length}`, q.question, q.context, labels, true, st.answer !== null, questionFooter);
+      act = await page(st, questionHead(qi, qs.length), q.question, q.context, labels, true, st.answer !== null, questionFooter);
       if (act[0] === "pick") {
         st.answer = { question: q.question, choice: act[1] + 1, answer: q.options[act[1]] };
         st.picked = act[1];

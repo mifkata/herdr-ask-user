@@ -38,7 +38,7 @@ The agent writes its questions as JSON and runs [`herdr-ask-user/scripts/ask-use
 
 Where the questions open depends on the herdr client you typed in last:
 
-- Desktop: a split pane below the agent's pane, in the same tab.
+- Desktop: a split pane below the agent's pane, in the same tab. It takes 40% of the pane's height and grows to fit long questions, up to 75%.
 - SSH: a full-screen tab, sized to your screen.
 - Another workspace: your view stays where it is, and herdr shows a "Question waiting" notification.
 
