@@ -1,5 +1,7 @@
 # herdr-ask-user
 
+Agent skill for Prime Agent, Codex and Cursor inside herdr: asks the user numbered multiple-choice questions in a herdr pane or tab, depending on the calling environment, and returns the answers as JSON.
+
 Maintained with the `agentsmd-writer` skill and audited by `agentsmd-auditor`: change this file only through them. Sections owned by other skills and marked blocks are theirs.
 
 ## Skills
@@ -48,6 +50,7 @@ Maintained with the `agentsmd-writer` skill and audited by `agentsmd-auditor`: c
 ## Docs
 
 - `docs/agents-md/`: Subagents models, rule provenance, audit findings and model outcomes; written through `agentsmd-writer` and `agentsmd-auditor` only.
+- `herdr-ask-user/SKILL.md`: the skill's agent-side contract (questions JSON, result, exit codes); read before changing `scripts/ask-user.py`.
 
 <!-- beads:skill -->
 ## Task tracking (Beads)

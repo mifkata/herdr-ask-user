@@ -2,7 +2,7 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "0c89af3cd23c91c7b68a0a9f2d014b352eb3978a41e3b7d2aca3831820cd0389"
+      "sha256": "93da87a35ad83bf7b7b081930de050433c2ca3b96d34bc5179a01cb0e2ccacd6"
     }
   ],
   "findings": [
@@ -226,17 +226,17 @@
       "id": "AF-pwkj86",
       "check": "AC-05",
       "severity": "minor",
-      "status": "accepted-risk",
+      "status": "fixed",
       "file": "AGENTS.md",
       "lines": [
-        1
+        3
       ],
-      "quote": "# herdr-ask-user",
+      "quote": "Agent skill for Prime Agent, Codex and Cursor inside herdr: asks the user numbered multiple-choice questions in a herdr pane or tab, depending on the calling environment, and returns the answers as JSON.",
       "finding": "The template's one-line purpose is missing.",
       "verified": true,
       "options": [],
       "scores": null,
-      "answer": "Title only",
+      "answer": "Title only; superseded 2026-11-01 when the user corrected the proposed line: \"it's either in a pane or in a tab, depending on call environment\"",
       "handoff": null,
       "date": "2026-11-01"
     }
