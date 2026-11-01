@@ -50,7 +50,7 @@ Maintained with the `agentsmd-writer` skill and audited by `agentsmd-auditor`: c
 ## Docs
 
 - `docs/agents-md/`: Subagents models, rule provenance, audit findings and model outcomes; written through `agentsmd-writer` and `agentsmd-auditor` only.
-- `herdr-ask-user/SKILL.md`: the skill's agent-side contract (questions JSON, result, exit codes); read before changing `scripts/ask-user.py`.
+- `herdr-ask-user/SKILL.md`: the skill's agent-side contract (questions JSON, result, exit codes); read before changing `scripts/ask-user.mjs`.
 
 <!-- beads:skill -->
 ## Task tracking (Beads)
