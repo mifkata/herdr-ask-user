@@ -1,0 +1,17 @@
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*
+.claude/settings.local.json
+
+# Misc
+.rtk/
+
+# Prop skills
+.agents/skills/
+.claude/skills/
+.codex/skills/
+.cursor/skills/

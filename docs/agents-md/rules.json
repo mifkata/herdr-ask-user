@@ -1,0 +1,13 @@
+{
+  "rules": [
+    {
+      "id": "AR-7ugisv",
+      "file": "AGENTS.md",
+      "section": "Subagents",
+      "text": "- Workers: easy low `openai-codex/gpt-6-luna`, `xai/grok-4.3`, `xai/grok-build-0.1`, `anthropic/claude-haiku-5-5`; moderate medium `xai/grok-4.3`, `openai-codex/gpt-6-luna`, `openai-codex/gpt-6-sol`, `xai/grok-4.5`, `anthropic/claude-haiku-5-5`; hard medium `xai/grok-4.7`, `xai/grok-4.6`, `openai-codex/gpt-6.1-sol`, `openai-codex/gpt-6-sol`, `anthropic/claude-sonnet-5-5`; complex high `openai-codex/gpt-6.1-sol`, `xai/grok-4.7`, `openai-codex/gpt-6-astra`, `anthropic/claude-sonnet-5-5`; escalation medium `anthropic/claude-opus-5-5`.",
+      "src": "1 + say xai instead of cursor, that's an issue in prime-agent, needs a handoff",
+      "date": "2026-11-01",
+      "status": "active"
+    }
+  ]
+}

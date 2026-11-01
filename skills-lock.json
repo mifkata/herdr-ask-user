@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "agentsmd-auditor": {
+      "source": "mifkata/repo-skills",
+      "sourceType": "github",
+      "skillPath": "agentsmd-auditor/SKILL.md",
+      "computedHash": "b07cc32c28950cb57c9dceb32fa2080387258e886b03bcf2b7cdad6d99a6bb72"
+    },
+    "agentsmd-writer": {
+      "source": "mifkata/repo-skills",
+      "sourceType": "github",
+      "skillPath": "agentsmd-writer/SKILL.md",
+      "computedHash": "af3834ccdc8db691d57d1a87084b2e3f781088e3b73f7809a50dc4058a845838"
+    },
+    "beads": {
+      "source": "mifkata/repo-skills",
+      "sourceType": "github",
+      "skillPath": "beads/SKILL.md",
+      "computedHash": "c2b3131de45ccc690ebaf443f1801f4b3f4d6329b687b53368a1028325421753"
+    },
+    "readme-writer": {
+      "source": "mifkata/repo-skills",
+      "sourceType": "github",
+      "skillPath": "readme-writer/SKILL.md",
+      "computedHash": "7ece471a6e2388af7a1dd1ba2e7401a222610ce5d3356a56a8b7191923401747"
+    },
+    "skill-fix-handoff": {
+      "source": "mifkata/repo-skills",
+      "sourceType": "github",
+      "skillPath": "skill-fix-handoff/SKILL.md",
+      "computedHash": "f98f163a877ff261dbaed9a5f6d8961ed12cff068533eebf35aefc549e5d2fea"
+    },
+    "skill-installer": {
+      "source": "mifkata/repo-skills",
+      "sourceType": "github",
+      "skillPath": "skill-installer/SKILL.md",
+      "computedHash": "8fcbf77e5064f6b9d60a2242c14f36e7a00e5f2a84cd2b40e4882b16e2158658"
+    }
+  }
+}

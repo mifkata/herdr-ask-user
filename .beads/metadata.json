@@ -1,0 +1,9 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_server_host": "127.0.0.1",
+  "dolt_server_port": 3307,
+  "dolt_database": "beads_herdr-ask-user",
+  "project_id": "01aafef7-a183-42a2-bfcf-4793c32d5162"
+}

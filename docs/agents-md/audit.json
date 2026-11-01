@@ -1,0 +1,244 @@
+{
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "0c89af3cd23c91c7b68a0a9f2d014b352eb3978a41e3b7d2aca3831820cd0389"
+    }
+  ],
+  "findings": [
+    {
+      "id": "AF-87qyht",
+      "check": "AC-10",
+      "severity": "major",
+      "status": "fixed",
+      "file": "AGENTS.md",
+      "lines": [
+        30,
+        31,
+        34
+      ],
+      "quote": "xai/grok-4.3 ... from xAI and OpenAI only ... go to xAI or OpenAI",
+      "finding": "xai/grok-* ids are not in the registry and no rules.json entry records the user naming them; the Vendors and Anthropic pacing lines differ from the template for the same reason.",
+      "verified": true,
+      "options": [
+        "Record user rule (86) (recommended)",
+        "Accept risk (62)"
+      ],
+      "scores": {
+        "rubric": "option-choice",
+        "version": 1,
+        "source": "/Users/mifkata/Work/mifkata/herdr-ask-user/.agents/skills/agentsmd-auditor/assets/rubrics/option-choice.json",
+        "threshold": 50,
+        "options": [
+          {
+            "option": "Record user rule",
+            "scores": {
+              "fit": 4,
+              "consistency": 4,
+              "risk": 4,
+              "cost": 5,
+              "reversibility": 5
+            },
+            "total": 86,
+            "pass": true,
+            "below_floor": [],
+            "short": [],
+            "band": null
+          },
+          {
+            "option": "Accept risk",
+            "scores": {
+              "fit": 2,
+              "consistency": 2,
+              "risk": 3,
+              "cost": 5,
+              "reversibility": 5
+            },
+            "total": 62,
+            "pass": true,
+            "below_floor": [],
+            "short": [
+              "fit",
+              "consistency"
+            ],
+            "band": null
+          }
+        ],
+        "rank": [
+          "Record user rule",
+          "Accept risk"
+        ],
+        "top": "Record user rule"
+      },
+      "answer": "Record user rule (86) (recommended)",
+      "handoff": "SH-re61jt",
+      "date": "2026-11-01"
+    },
+    {
+      "id": "AF-a2kh7a",
+      "check": "AC-10",
+      "severity": "major",
+      "status": "accepted-risk",
+      "file": "AGENTS.md",
+      "lines": [
+        34,
+        35
+      ],
+      "quote": "Workers: easy low openai-codex/gpt-6-luna ... Reviewers: easy low anthropic/claude-haiku-5-5",
+      "finding": "Anthropic workers added for easy, moderate and hard; no OpenAI or xAI reviewer for any grade, kept by the user's choice.",
+      "verified": true,
+      "options": [
+        "Add Anthropic workers (83) (recommended)",
+        "Add all vendors (81)",
+        "Accept risk (62)"
+      ],
+      "scores": {
+        "rubric": "option-choice",
+        "version": 1,
+        "source": "/Users/mifkata/Work/mifkata/herdr-ask-user/.agents/skills/agentsmd-auditor/assets/rubrics/option-choice.json",
+        "threshold": 50,
+        "options": [
+          {
+            "option": "Add Anthropic workers",
+            "scores": {
+              "fit": 4,
+              "consistency": 4,
+              "risk": 4,
+              "cost": 4,
+              "reversibility": 5
+            },
+            "total": 83,
+            "pass": true,
+            "below_floor": [],
+            "short": [],
+            "band": null
+          },
+          {
+            "option": "Add all vendors",
+            "scores": {
+              "fit": 5,
+              "consistency": 3,
+              "risk": 3,
+              "cost": 4,
+              "reversibility": 5
+            },
+            "total": 81,
+            "pass": true,
+            "below_floor": [],
+            "short": [],
+            "band": null
+          },
+          {
+            "option": "Accept risk",
+            "scores": {
+              "fit": 2,
+              "consistency": 2,
+              "risk": 3,
+              "cost": 5,
+              "reversibility": 5
+            },
+            "total": 62,
+            "pass": true,
+            "below_floor": [],
+            "short": [
+              "fit",
+              "consistency"
+            ],
+            "band": null
+          }
+        ],
+        "rank": [
+          "Add Anthropic workers",
+          "Add all vendors",
+          "Accept risk"
+        ],
+        "top": "Add Anthropic workers"
+      },
+      "answer": "Add Anthropic workers (83) (recommended)",
+      "handoff": null,
+      "date": "2026-11-01"
+    },
+    {
+      "id": "AF-4fjs55",
+      "check": "AC-05",
+      "severity": "major",
+      "status": "fixed",
+      "file": "AGENTS.md",
+      "lines": [],
+      "quote": "(no § Docs section)",
+      "finding": "docs/agents-md/ now exists and is named in the writer and auditor Layouts, but § Docs has no pointer to it.",
+      "verified": true,
+      "options": [
+        "Add Docs pointer (94) (recommended)",
+        "Accept risk (66)"
+      ],
+      "scores": {
+        "rubric": "option-choice",
+        "version": 1,
+        "source": "/Users/mifkata/Work/mifkata/herdr-ask-user/.agents/skills/agentsmd-auditor/assets/rubrics/option-choice.json",
+        "threshold": 50,
+        "options": [
+          {
+            "option": "Add Docs pointer",
+            "scores": {
+              "fit": 4,
+              "consistency": 5,
+              "risk": 5,
+              "cost": 5,
+              "reversibility": 5
+            },
+            "total": 94,
+            "pass": true,
+            "below_floor": [],
+            "short": [],
+            "band": null
+          },
+          {
+            "option": "Accept risk",
+            "scores": {
+              "fit": 2,
+              "consistency": 2,
+              "risk": 4,
+              "cost": 5,
+              "reversibility": 5
+            },
+            "total": 66,
+            "pass": true,
+            "below_floor": [],
+            "short": [
+              "fit",
+              "consistency"
+            ],
+            "band": null
+          }
+        ],
+        "rank": [
+          "Add Docs pointer",
+          "Accept risk"
+        ],
+        "top": "Add Docs pointer"
+      },
+      "answer": "Add Docs pointer (94) (recommended)",
+      "handoff": null,
+      "date": "2026-11-01"
+    },
+    {
+      "id": "AF-pwkj86",
+      "check": "AC-05",
+      "severity": "minor",
+      "status": "accepted-risk",
+      "file": "AGENTS.md",
+      "lines": [
+        1
+      ],
+      "quote": "# herdr-ask-user",
+      "finding": "The template's one-line purpose is missing.",
+      "verified": true,
+      "options": [],
+      "scores": null,
+      "answer": "Title only",
+      "handoff": null,
+      "date": "2026-11-01"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+
+<!-- beads:skill -->
+## Task tracking (Beads)
+
+Work is tracked with Beads (`bd`). Load the `beads` skill before any `bd` command or task-tracking step and follow it; it holds the whole workflow. No markdown TODO lists; agent-local task tools only for the current turn.
+<!-- /beads:skill -->
