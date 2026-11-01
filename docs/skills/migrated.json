@@ -1,0 +1,41 @@
+{
+  "generated": "skill-installer",
+  "skills": [
+    {
+      "name": "agentsmd-auditor",
+      "hash": "378c7444dbf800186ccb9a2968e8867c6f07bd0c0a3feff117adebad22aa68ec",
+      "commit": "1ac7dc3c66fdd1af7d1ae263216707282c93a26d",
+      "date": "2026-11-02"
+    },
+    {
+      "name": "agentsmd-writer",
+      "hash": "be4370157bc30d488a2232b8a5c936be6ec77c0c13820f031b14a5aabcd5eb0f",
+      "commit": "1ac7dc3c66fdd1af7d1ae263216707282c93a26d",
+      "date": "2026-11-02"
+    },
+    {
+      "name": "beads",
+      "hash": "50b5ff5d220747dee05494f5232421d5e6ce8a2c23d59418899aabba4b73baeb",
+      "commit": "1ac7dc3c66fdd1af7d1ae263216707282c93a26d",
+      "date": "2026-11-02"
+    },
+    {
+      "name": "readme-writer",
+      "hash": "7ece471a6e2388af7a1dd1ba2e7401a222610ce5d3356a56a8b7191923401747",
+      "commit": "e350171c5b602d1e972ae8c6bfb2c650053d6c62",
+      "date": "2026-11-02"
+    },
+    {
+      "name": "skill-fix-handoff",
+      "hash": "f98f163a877ff261dbaed9a5f6d8961ed12cff068533eebf35aefc549e5d2fea",
+      "commit": "44016b697eae2fe2e2e8365326eb425a617678d4",
+      "date": "2026-11-02"
+    },
+    {
+      "name": "skill-installer",
+      "hash": "8fcbf77e5064f6b9d60a2242c14f36e7a00e5f2a84cd2b40e4882b16e2158658",
+      "commit": "839cc82f9899fe6dfb31ecb97ad76a4ba0575a48",
+      "date": "2026-11-02"
+    }
+  ]
+}

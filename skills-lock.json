@@ -5,19 +5,19 @@
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "agentsmd-auditor/SKILL.md",
-      "computedHash": "b07cc32c28950cb57c9dceb32fa2080387258e886b03bcf2b7cdad6d99a6bb72"
+      "computedHash": "378c7444dbf800186ccb9a2968e8867c6f07bd0c0a3feff117adebad22aa68ec"
     },
     "agentsmd-writer": {
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "agentsmd-writer/SKILL.md",
-      "computedHash": "af3834ccdc8db691d57d1a87084b2e3f781088e3b73f7809a50dc4058a845838"
+      "computedHash": "be4370157bc30d488a2232b8a5c936be6ec77c0c13820f031b14a5aabcd5eb0f"
     },
     "beads": {
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "beads/SKILL.md",
-      "computedHash": "c2b3131de45ccc690ebaf443f1801f4b3f4d6329b687b53368a1028325421753"
+      "computedHash": "50b5ff5d220747dee05494f5232421d5e6ce8a2c23d59418899aabba4b73baeb"
     },
     "readme-writer": {
       "source": "mifkata/repo-skills",
