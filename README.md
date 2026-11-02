@@ -67,5 +67,6 @@ With more than one question, a review page lists every answer before you submit.
 | Enter | Confirm the option, or submit the Other answer |
 | ← → | Previous or next question; move the cursor while typing in Other |
 | `N + notes` in Other | Choose option N and add notes |
+| Ctrl+U | Clear what you typed in Other |
 | Esc | Cancel; ignored while typing in Other |
 | Ctrl+C | Cancel |

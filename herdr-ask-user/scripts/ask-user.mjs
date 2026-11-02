@@ -375,6 +375,7 @@ function tokenize(data) {
       else if (c === "\x7f" || c === "\b") tokens.push({ name: "backspace" });
       else if (c === "\x04") tokens.push({ name: "delete" });
       else if (c === "\x03") tokens.push({ name: "interrupt" });
+      else if (c === "\x15") tokens.push({ name: "clear" });
       else if (c >= " ") tokens.push({ name: "char", ch: c });
     }
     s = s.slice(m[0].length);
@@ -523,6 +524,7 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
       } else if (k.name === "backspace") {
         if (cur) buf.splice(cur - 1, 1), (st.cur = cur - 1);
       } else if (k.name === "delete") buf.splice(cur, 1);
+      else if (k.name === "clear") buf.splice(0), (st.cur = 0);
       else if (k.name === "enter") buf.splice(cur, 0, " "), (st.cur = cur + 1);
       else if (k.name === "char") buf.splice(cur, 0, k.ch), (st.cur = cur + 1);
       follow = true;
@@ -547,7 +549,7 @@ const REVIEW_ITEMS = [{ num: "1. ", text: "Submit answers" }];
 
 const questionFooter = (editing) =>
   editing
-    ? "↑↓ move/scroll · ←→ cursor · drag copy · Enter submit"
+    ? "↑↓ move/scroll · ←→ cursor · Ctrl+U clear · drag copy · Enter submit"
     : "←→ questions · ↑↓ move/scroll · 1-9 or tap choose · drag copy · Enter confirm · Esc cancel";
 const reviewFooter = () => "← back · Enter or tap submit · drag copy · Esc cancel";
 
