@@ -39,16 +39,18 @@ function loadQuestions(src) {
     if (rec !== undefined && rec !== null && !(Number.isInteger(rec) && rec >= 1 && rec <= opts.length)) {
       throw new Failure(`Question ${i + 1}: "recommended" must be an option number 1-${opts.length}.`, 2);
     }
-    const options = opts.map((o) => (typeof o === "string" ? { label: o } : o));
-    const marked = options.flatMap((o, n) => (withoutMarker(o.label) === o.label ? [] : [n + 1]));
+    q.options = opts.map((o) => (typeof o === "string" ? { label: o } : o));
+    const marked = q.options.flatMap((o, n) => (hasMarker(o.label) ? [n + 1] : []));
     if ((rec === undefined || rec === null) && marked.length === 1) q.recommended = marked[0];
-    q.options = options.map((o, n) => (q.recommended === n + 1 ? { ...o, label: withoutMarker(o.label) } : o));
   });
   return qs;
 }
 
-function withoutMarker(label) {
-  return label.replace(/\s*[(\[{<（【]\s*recommend(?:ed)?\s*[)\]}>）】]/gi, "").trim() || label;
+function hasMarker(label) {
+  const brackets = label.matchAll(/[(\[{<（【]([^)\]}>）】]*)[)\]}>）】]/g);
+  return [...brackets].some(([, inner]) =>
+    inner.split(/[,;:|·/–—-]/).some((part) => /^recommend(?:ed)?$/i.test(part.replace(/\d+(?:\.\d+)?/g, "").trim())),
+  );
 }
 
 function validOption(o) {
@@ -524,7 +526,7 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
   }
 }
 
-const withMarker = (q, choice, text) => (choice && q.recommended === choice ? `${text} (recommended)` : text);
+const withMarker = (q, choice, text) => (choice && q.recommended === choice && !hasMarker(text) ? `${text} (recommended)` : text);
 
 function optionItem(q, n) {
   const { label, description } = q.options[n];
