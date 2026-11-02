@@ -4,7 +4,7 @@
       "model": "anthropic/claude-haiku-5-5",
       "role": "helper-migration-analysis",
       "grade": "moderate",
-      "success": 2,
+      "success": 6,
       "failure": 1,
       "escalated": 0,
       "updated": "2026-11-02"

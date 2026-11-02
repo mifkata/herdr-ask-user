@@ -3,20 +3,20 @@
   "skills": [
     {
       "name": "agentsmd-auditor",
-      "hash": "378c7444dbf800186ccb9a2968e8867c6f07bd0c0a3feff117adebad22aa68ec",
-      "commit": "1ac7dc3c66fdd1af7d1ae263216707282c93a26d",
+      "hash": "530059e7c6409820ddf0f068fce3d0f1e4dfb1cd00a1e8ee25854cf82d629ebe",
+      "commit": "f1bfa145977939305291b27a1c1ce49f28c4bd92",
       "date": "2026-11-02"
     },
     {
       "name": "agentsmd-writer",
-      "hash": "be4370157bc30d488a2232b8a5c936be6ec77c0c13820f031b14a5aabcd5eb0f",
-      "commit": "1ac7dc3c66fdd1af7d1ae263216707282c93a26d",
+      "hash": "6d400437caf30f4eb210b5085a403358b9da12fe832db2f16a0740c28e114486",
+      "commit": "f1bfa145977939305291b27a1c1ce49f28c4bd92",
       "date": "2026-11-02"
     },
     {
       "name": "beads",
-      "hash": "50b5ff5d220747dee05494f5232421d5e6ce8a2c23d59418899aabba4b73baeb",
-      "commit": "1ac7dc3c66fdd1af7d1ae263216707282c93a26d",
+      "hash": "cf68e972c4ede8f688711c3db90e45d7c316009cdb8af67f23d8e0b6e9936a06",
+      "commit": "f1bfa145977939305291b27a1c1ce49f28c4bd92",
       "date": "2026-11-02"
     },
     {
@@ -33,8 +33,8 @@
     },
     {
       "name": "skill-installer",
-      "hash": "8fcbf77e5064f6b9d60a2242c14f36e7a00e5f2a84cd2b40e4882b16e2158658",
-      "commit": "839cc82f9899fe6dfb31ecb97ad76a4ba0575a48",
+      "hash": "5e0009fc9810945889f175da4ec26c1faa52beca5db8ec0e74e6f25909c3a2b8",
+      "commit": "f1bfa145977939305291b27a1c1ce49f28c4bd92",
       "date": "2026-11-02"
     }
   ]
