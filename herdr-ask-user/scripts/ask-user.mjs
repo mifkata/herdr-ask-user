@@ -264,8 +264,9 @@ class Screen {
   width() {
     return Math.max(10, this.cols - 2 * PAD);
   }
-  add(text, style = "", raw = false) {
-    for (const ln of raw ? chunk(text, this.width()) : wrap(text, this.width())) this.lines.push([ln, style]);
+  add(text, style = "", raw = false, indent = "") {
+    const width = this.width() - indent.length;
+    for (const ln of raw ? chunk(text, width) : wrap(text, width)) this.lines.push([indent + ln, style]);
   }
   addHanging(prefix, text, style = "") {
     const pad = " ".repeat(prefix.length);
@@ -435,11 +436,12 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
     st.cur = Math.min(st.cur, buf.length);
     const cur = st.cur;
     const bufStart = s.lines.length;
+    const indent = other ? " ".repeat(`  ${otherItem(labels.length).num}`.length) : "";
     if (other && (editing || buf.length)) {
-      s.add(buf.length ? buf.join("") : "Type here…", buf.length ? "" : ST.dim, true);
+      s.add(buf.length ? buf.join("") : "Type here…", buf.length ? "" : ST.dim, true, indent);
       spans[otherIdx] = [spans[otherIdx][0], s.lines.length - 1];
     }
-    const [row, col] = cursorPos(buf, cur, s.width());
+    const [row, col] = cursorPos(buf, cur, s.width() - indent.length);
     const cursorLine = bufStart + row;
     let [first, last] = spans[sel];
     if (editing) last = cursorLine;
@@ -450,7 +452,7 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
       if (last >= st.offset + fullBody) st.offset = last - fullBody + 1;
       follow = false;
     }
-    const { top, body } = s.draw(foot, st.offset, editing ? { line: cursorLine, col } : null, titles[hover], mark);
+    const { top, body } = s.draw(foot, st.offset, editing ? { line: cursorLine, col: col + indent.length } : null, titles[hover], mark);
     st.offset = top;
     const titleAt = (y) => (y < body ? titles.findIndex(([a, b]) => a <= top + y && top + y <= b) : -1);
     const cellAt = ({ x, y }) => {
