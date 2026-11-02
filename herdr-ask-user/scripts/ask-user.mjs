@@ -254,6 +254,8 @@ function paint(ln, style, hovered, range) {
   return s;
 }
 
+let shown = { cols: 0, rows: 0, screen: [], tail: "" };
+
 class Screen {
   constructor(cols = size().cols) {
     this.cols = cols;
@@ -289,22 +291,27 @@ class Screen {
     const flines = this.footerLines(footer);
     const body = Math.max(1, rows - flines.length);
     const top = Math.max(0, Math.min(this.lines.length - body, offset));
-    let frame = "\x1b[?25l\x1b[H\x1b[2J";
+    const screen = Array.from({ length: rows }, (_, i) => `\x1b[${i + 1};1H\x1b[K`);
     this.lines.slice(top, top + body).forEach(([ln, style], i) => {
       const line = top + i;
       const hovered = hover && line >= hover[0] && line <= hover[1];
-      if (hovered) frame += `\x1b[${i + 1};1H${ST.hover}${" ".repeat(this.cols)}\x1b[0m`;
-      frame += `\x1b[${i + 1};${PAD + 1}H${paint(ln, style, hovered, markRange(mark, line, chars(ln).length))}`;
+      const text = paint(ln, style, hovered, markRange(mark, line, chars(ln).length));
+      screen[i] = hovered
+        ? `\x1b[${i + 1};1H${ST.hover}${" ".repeat(this.cols)}\x1b[0m\x1b[${i + 1};${PAD + 1}H${text}`
+        : `\x1b[${i + 1};1H${" ".repeat(PAD)}${text}\x1b[K`;
     });
     const more = (top > 0 ? "▲" : "") + (top + body < this.lines.length ? "▼" : "");
     const prefix = more ? `${more.padEnd(2)} ` : "";
     flines.forEach((ln, i) => {
-      frame += `\x1b[${body + i + 1};${PAD + 1}H${ST.footer}${i ? " ".repeat(prefix.length) : prefix}${ln}\x1b[0m`;
+      screen[body + i] = `\x1b[${body + i + 1};1H${" ".repeat(PAD)}${ST.footer}${i ? " ".repeat(prefix.length) : prefix}${ln}\x1b[0m\x1b[K`;
     });
-    if (cursor && cursor.line >= top && cursor.line < top + body) {
-      frame += `\x1b[${cursor.line - top + 1};${PAD + cursor.col + 1}H\x1b[?25h`;
-    }
-    out(frame);
+    const tail =
+      cursor && cursor.line >= top && cursor.line < top + body ? `\x1b[${cursor.line - top + 1};${PAD + cursor.col + 1}H\x1b[?25h` : "\x1b[?25l";
+    const resized = shown.cols !== this.cols || shown.rows !== rows;
+    const changed = screen.filter((row, i) => resized || row !== shown.screen[i]).join("");
+    if (changed) out(`\x1b[?25l${resized ? "\x1b[2J" : ""}${changed}${tail}`);
+    else if (tail !== shown.tail) out(tail);
+    shown = { cols: this.cols, rows, screen, tail };
     return { top, body };
   }
 }
