@@ -19,11 +19,12 @@ node <skill-dir>/scripts/ask-user.mjs questions.json   # or pipe JSON and pass -
 ```json
 [
   {"question": "Which database?", "context": "Optional text shown above the options.",
-   "options": ["Postgres", "SQLite"], "recommended": 1}
+   "options": [{"label": "Postgres", "description": "Shown below the title."}, "SQLite"], "recommended": 1}
 ]
 ```
 
-- `question` and `options` (strings) are required; `context` and `recommended` (option number) are optional.
+- `question` and `options` are required; `context` and `recommended` (option number) are optional.
+- An option is a string, or an object with `label` and an optional `description`, shown on its own line under the title. The result's `answer` is the label.
 - Put everything the user needs to decide into `context` and the option texts: the user sees only the question screen.
 - Any number of questions; the user can move between them and submits all answers on a final review page (skipped for a single question).
 

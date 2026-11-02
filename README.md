@@ -61,7 +61,9 @@ With more than one question, a review page lists every answer before you submit.
 | ↑ ↓, or `j` `k` outside Other | Move between options; past the first or last option, scroll |
 | PgUp PgDn | Scroll one screen |
 | Mouse wheel | Scroll three lines |
-| 1–9, tap or click | Choose an option |
+| 1–9, tap or click a title | Choose an option; a description is not clickable |
+| Hover a title | Highlight its row |
+| Drag | Select text and copy it to the clipboard |
 | Enter | Confirm the option, or submit the Other answer |
 | ← → | Previous or next question; move the cursor while typing in Other |
 | `N + notes` in Other | Choose option N and add notes |

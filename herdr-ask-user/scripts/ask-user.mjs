@@ -32,15 +32,21 @@ function loadQuestions(src) {
   if (!Array.isArray(qs) || !qs.length) throw new Failure("Questions must be a non-empty JSON list.", 2);
   qs.forEach((q, i) => {
     const opts = q && q.options;
-    if (typeof q?.question !== "string" || !Array.isArray(opts) || !opts.length || !opts.every((o) => typeof o === "string")) {
-      throw new Failure(`Question ${i + 1} needs "question" (string) and "options" (non-empty list of strings).`, 2);
+    if (typeof q?.question !== "string" || !Array.isArray(opts) || !opts.length || !opts.every(validOption)) {
+      throw new Failure(`Question ${i + 1} needs "question" (string) and "options" (non-empty list of strings or {label, description} objects).`, 2);
     }
     const rec = q.recommended;
     if (rec !== undefined && rec !== null && !(Number.isInteger(rec) && rec >= 1 && rec <= opts.length)) {
       throw new Failure(`Question ${i + 1}: "recommended" must be an option number 1-${opts.length}.`, 2);
     }
+    q.options = opts.map((o) => (typeof o === "string" ? { label: o } : o));
   });
   return qs;
+}
+
+function validOption(o) {
+  if (typeof o === "string") return true;
+  return typeof o?.label === "string" && (o.description === undefined || o.description === null || typeof o.description === "string");
 }
 
 function herdr(...args) {
@@ -168,10 +174,13 @@ const ST = {
   dim: "\x1b[2m",
   answer: "\x1b[32m",
   footer: "\x1b[33m",
-  selected: COLOR256 ? "\x1b[1;38;5;156;48;5;237m" : "\x1b[1;32m",
+  selected: COLOR256 ? "\x1b[1;38;5;156m" : "\x1b[1;32m",
+  hover: COLOR256 ? "\x1b[48;5;237m" : "\x1b[100m",
+  marked: "\x1b[7m",
 };
 const out = (s) => process.stdout.write(s);
-const size = () => ({ rows: process.stdout.rows || 24, cols: process.stdout.columns || 80 });
+const copy = (text) => out(`\x1b]52;c;${Buffer.from(text).toString("base64")}\x07`);
+const size =() => ({ rows: process.stdout.rows || 24, cols: process.stdout.columns || 80 });
 const chars = (s) => Array.from(s);
 
 function wrap(text, width) {
@@ -205,6 +214,37 @@ function chunk(text, width) {
   return lines;
 }
 
+// The part of a line a drag covers, as [start, end) columns; null when the drag misses it.
+function markRange(mark, line, len) {
+  if (!mark) return null;
+  const forward = mark.from.line < mark.to.line || (mark.from.line === mark.to.line && mark.from.col <= mark.to.col);
+  const [a, b] = forward ? [mark.from, mark.to] : [mark.to, mark.from];
+  if (line < a.line || line > b.line) return null;
+  return [line === a.line ? Math.min(a.col, len) : 0, line === b.line ? Math.min(b.col, len) : len];
+}
+
+function markedText(lines, mark) {
+  const picked = [];
+  lines.forEach(([ln], line) => {
+    const c = chars(ln);
+    const range = markRange(mark, line, c.length);
+    if (range) picked.push(c.slice(...range).join("").trim());
+  });
+  return picked.join("\n").trim();
+}
+
+function paint(ln, style, hovered, range) {
+  const c = chars(ln);
+  const cuts = [...new Set([0, ...(range || []), c.length])].sort((a, b) => a - b);
+  let s = "";
+  cuts.slice(1).forEach((end, i) => {
+    const start = cuts[i];
+    const marked = range && start >= range[0] && start < range[1];
+    s += `${hovered ? ST.hover : ""}${style}${marked ? ST.marked : ""}${c.slice(start, end).join("")}\x1b[0m`;
+  });
+  return s;
+}
+
 class Screen {
   constructor(cols = size().cols) {
     this.cols = cols;
@@ -223,17 +263,29 @@ class Screen {
       prefix = pad;
     }
   }
+  // Returns the title's line span; the description below it stays outside, so it is not clickable.
+  addItem({ num, text, description }, selected = false) {
+    const prefix = `${selected ? "❯" : " "} ${num}`;
+    const start = this.lines.length;
+    this.addHanging(prefix, text, selected ? ST.selected : "");
+    const end = this.lines.length - 1;
+    if (description) this.addHanging(" ".repeat(prefix.length), description, ST.dim);
+    return [start, end];
+  }
   footerLines(footer) {
     return wrap(footer, this.width() - 3);
   }
-  draw(footer, offset, cursor) {
+  draw(footer, offset, cursor, hover, mark) {
     const { rows } = size();
     const flines = this.footerLines(footer);
     const body = Math.max(1, rows - flines.length);
     const top = Math.max(0, Math.min(this.lines.length - body, offset));
     let frame = "\x1b[?25l\x1b[H\x1b[2J";
     this.lines.slice(top, top + body).forEach(([ln, style], i) => {
-      frame += `\x1b[${i + 1};${PAD + 1}H${style}${ln}\x1b[0m`;
+      const line = top + i;
+      const hovered = hover && line >= hover[0] && line <= hover[1];
+      if (hovered) frame += `\x1b[${i + 1};1H${ST.hover}${" ".repeat(this.cols)}\x1b[0m`;
+      frame += `\x1b[${i + 1};${PAD + 1}H${paint(ln, style, hovered, markRange(mark, line, chars(ln).length))}`;
     });
     const more = (top > 0 ? "▲" : "") + (top + body < this.lines.length ? "▼" : "");
     const prefix = more ? `${more.padEnd(2)} ` : "";
@@ -267,6 +319,15 @@ function nextKey() {
 
 const CSI_KEYS = { A: "up", B: "down", C: "right", D: "left", H: "home", F: "end" };
 const TILDE_KEYS = { 1: "home", 7: "home", 4: "end", 8: "end", 3: "delete", 5: "pageup", 6: "pagedown" };
+// SGR mouse button codes, and the shift, alt and ctrl bits terminals add to them.
+const MOUSE_MODIFIERS = 28;
+const MOUSE_LEFT = 0;
+const MOUSE_DRAG = 32;
+const MOUSE_MOVE = 35;
+const WHEEL_UP = 64;
+const WHEEL_DOWN = 65;
+// A press that drifts this many cells before release is still a click.
+const CLICK_SLOP = 1;
 
 function tokenize(data) {
   clearTimeout(escTimer);
@@ -276,7 +337,7 @@ function tokenize(data) {
   while (s) {
     let m;
     if ((m = s.match(/^\x1b\[<(\d+);(\d+);(\d+)([Mm])/))) {
-      tokens.push({ name: "mouse", button: Number(m[1]), y: Number(m[3]) - 1, press: m[4] === "M" });
+      tokens.push({ name: "mouse", button: Number(m[1]) & ~MOUSE_MODIFIERS, x: Number(m[2]) - 1, y: Number(m[3]) - 1, press: m[4] === "M" });
     } else if ((m = s.match(/^\x1b\[([\d;]*)([A-Za-z~])/))) {
       const name = m[2] === "~" ? TILDE_KEYS[m[1].split(";")[0]] : CSI_KEYS[m[2]];
       if (name) tokens.push({ name });
@@ -338,17 +399,20 @@ function cursorPos(buf, cur, width) {
 async function page(st, head, title, context, labels, other, canNext, footer) {
   const otherIdx = other ? labels.length : null;
   let follow = false;
+  let hover = -1;
+  let drag = null;
+  let mark = null;
   for (;;) {
     const { sel, buf } = st;
     const s = new Screen();
     header(s, head, title, context);
+    const titles = [];
     const spans = [];
-    const items = other ? [...labels, otherLabel(labels.length)] : labels;
-    items.forEach((text, n) => {
-      if (st.answer && st.picked === n) text += " ✓";
-      const start = s.lines.length;
-      s.add(text, n === sel ? ST.selected : "");
-      spans.push([start, s.lines.length - 1]);
+    const items = other ? [...labels, otherItem(labels.length)] : labels;
+    items.forEach((item, n) => {
+      const text = st.answer && st.picked === n ? `${item.text} ✓` : item.text;
+      titles.push(s.addItem({ ...item, text }, n === sel));
+      spans.push([titles[n][0], s.lines.length - 1]);
     });
     const editing = other && sel === otherIdx;
     st.cur = Math.min(st.cur, buf.length);
@@ -369,9 +433,16 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
       if (last >= st.offset + fullBody) st.offset = last - fullBody + 1;
       follow = false;
     }
-    const { top, body } = s.draw(foot, st.offset, editing ? { line: cursorLine, col } : null);
+    const { top, body } = s.draw(foot, st.offset, editing ? { line: cursorLine, col } : null, titles[hover], mark);
     st.offset = top;
-    const k = await nextKey();
+    const titleAt = (y) => (y < body ? titles.findIndex(([a, b]) => a <= top + y && top + y <= b) : -1);
+    const cellAt = ({ x, y }) => {
+      const line = Math.min(top + y, top + body - 1, s.lines.length - 1);
+      return { line, col: Math.max(0, Math.min(x - PAD, chars(s.lines[line][0]).length)) };
+    };
+    let k = await nextKey();
+    while (k.name === "mouse" && k.button === MOUSE_MOVE && titleAt(k.y) === hover) k = await nextKey();
+    if (k.name !== "mouse") mark = null;
     if (k.name === "resize") continue;
     if (k.name === "interrupt") return ["cancel"];
     if (k.name === "esc") {
@@ -379,14 +450,28 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
       return ["cancel"];
     }
     if (k.name === "mouse") {
-      if (k.button === 64) st.offset -= 3;
-      else if (k.button === 65) st.offset += 3;
-      else if (k.button === 0 && k.press) {
-        const hit = spans.findIndex(([a, b]) => a <= top + k.y && top + k.y <= b);
-        if (hit === otherIdx) st.sel = otherIdx;
-        else if (hit >= 0) {
-          st.sel = hit;
-          return ["pick", hit];
+      if (k.button === WHEEL_UP) st.offset -= 3;
+      else if (k.button === WHEEL_DOWN) st.offset += 3;
+      else if (k.button === MOUSE_MOVE) hover = titleAt(k.y);
+      else if (k.button === MOUSE_LEFT && k.press) {
+        mark = null;
+        drag = k.y < body ? { cell: cellAt(k), y: k.y } : null;
+      } else if (k.button === MOUSE_DRAG && drag) {
+        mark = { from: drag.cell, to: cellAt(k) };
+      } else if (k.button === MOUSE_LEFT && drag) {
+        const moved = mark && (mark.from.line !== mark.to.line || Math.abs(mark.from.col - mark.to.col) > CLICK_SLOP);
+        const text = moved ? markedText(s.lines, mark) : "";
+        const line = top + drag.y;
+        const hit = other && spans[otherIdx][0] <= line && line <= spans[otherIdx][1] ? otherIdx : titleAt(drag.y);
+        drag = null;
+        if (text) copy(text);
+        else {
+          mark = null;
+          if (hit === otherIdx) st.sel = otherIdx;
+          else if (hit >= 0) {
+            st.sel = hit;
+            return ["pick", hit];
+          }
         }
       }
       continue;
@@ -432,39 +517,40 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
   }
 }
 
-function label(q, n) {
-  return `${n + 1}. ${q.options[n]}${q.recommended === n + 1 ? " (recommended)" : ""}`;
+function optionItem(q, n) {
+  const { label, description } = q.options[n];
+  return { num: `${n + 1}. `, text: `${label}${q.recommended === n + 1 ? " (recommended)" : ""}`, description };
 }
 
-const otherLabel = (count) => `${count + 1}. ${OTHER}`;
+const otherItem = (count) => ({ num: `${count + 1}. `, text: OTHER });
 const questionHead = (i, count) => `Question ${i + 1} of ${count}`;
 const REVIEW = ["Review", "Submit these answers?"];
-const REVIEW_ITEMS = ["1. Submit answers"];
+const REVIEW_ITEMS = [{ num: "1. ", text: "Submit answers" }];
 
 const questionFooter = (editing) =>
   editing
-    ? "↑↓ move/scroll · ←→ cursor · Enter submit"
-    : "←→ questions · ↑↓ move/scroll · 1-9 or tap choose · Enter confirm · Esc cancel";
-const reviewFooter = () => "← back · Enter or tap submit · Esc cancel";
+    ? "↑↓ move/scroll · ←→ cursor · drag copy · Enter submit"
+    : "←→ questions · ↑↓ move/scroll · 1-9 or tap choose · drag copy · Enter confirm · Esc cancel";
+const reviewFooter = () => "← back · Enter or tap submit · drag copy · Esc cancel";
 
 function summary(answers) {
   return answers.map((a, i) => [`Q${i + 1}. `, a.question, a.answer + (a.notes ? `\n${a.notes}` : "")]);
 }
 
-function pageRows(cols, head, title, context, items, footer) {
+function pageRows(cols, head, title, context, items, footer, extra = 0) {
   const s = new Screen(cols);
   header(s, head, title, context);
-  items.forEach((text) => s.add(text));
-  return s.lines.length + s.footerLines(footer).length;
+  items.forEach((item) => s.addItem(item));
+  return s.lines.length + extra + s.footerLines(footer).length;
 }
 
 function tallestPage(qs, cols) {
   const rows = qs.map((q, i) => {
-    const items = [...q.options.map((_, n) => label(q, n)), otherLabel(q.options.length), "Type here…"];
-    return pageRows(cols, questionHead(i, qs.length), q.question, q.context, items, questionFooter(false));
+    const items = [...q.options.map((_, n) => optionItem(q, n)), otherItem(q.options.length)];
+    return pageRows(cols, questionHead(i, qs.length), q.question, q.context, items, questionFooter(false), 1);
   });
   if (qs.length > 1) {
-    const longest = (q) => q.options.reduce((a, b) => (chars(b).length > chars(a).length ? b : a));
+    const longest = (q) => q.options.map((o) => o.label).reduce((a, b) => (chars(b).length > chars(a).length ? b : a));
     const answers = qs.map((q) => ({ question: q.question, answer: longest(q) }));
     rows.push(pageRows(cols, ...REVIEW, summary(answers), REVIEW_ITEMS, reviewFooter()));
   }
@@ -475,7 +561,7 @@ function parseOther(q, text) {
   const m = text.match(/^\s*(\d+)(?:\s*[+:.,)\-]\s*|\s+|$)([\s\S]*)$/);
   const n = m ? Number(m[1]) : 0;
   if (n >= 1 && n <= q.options.length) {
-    const answer = { question: q.question, choice: n, answer: q.options[n - 1] };
+    const answer = { question: q.question, choice: n, answer: q.options[n - 1].label };
     if (m[2].trim()) answer.notes = m[2].trim();
     return answer;
   }
@@ -496,10 +582,10 @@ async function tui(qs) {
     } else {
       const q = qs[qi];
       const st = states[qi];
-      const labels = q.options.map((_, n) => label(q, n));
-      act = await page(st, questionHead(qi, qs.length), q.question, q.context, labels, true, st.answer !== null, questionFooter);
+      const items = q.options.map((_, n) => optionItem(q, n));
+      act = await page(st, questionHead(qi, qs.length), q.question, q.context, items, true, st.answer !== null, questionFooter);
       if (act[0] === "pick") {
-        st.answer = { question: q.question, choice: act[1] + 1, answer: q.options[act[1]] };
+        st.answer = { question: q.question, choice: act[1] + 1, answer: q.options[act[1]].label };
         st.picked = act[1];
         qi += 1;
       } else if (act[0] === "other") {
@@ -516,12 +602,12 @@ async function tui(qs) {
 
 async function runTui(dir) {
   const qs = JSON.parse(fs.readFileSync(path.join(dir, "questions.json"), "utf8"));
-  const restore = () => out("\x1b[?1006l\x1b[?1000l\x1b[0m\x1b[?25h\x1b[?1049l");
+  const restore = () => out("\x1b[?1006l\x1b[?1003l\x1b[?1000l\x1b[0m\x1b[?25h\x1b[?1049l");
   process.stdin.setRawMode(true);
   process.stdin.setEncoding("utf8");
   process.stdin.on("data", tokenize);
   process.stdout.on("resize", () => push({ name: "resize" }));
-  out("\x1b[?1049h\x1b[?1000h\x1b[?1006h");
+  out("\x1b[?1049h\x1b[?1000h\x1b[?1003h\x1b[?1006h");
   let res;
   try {
     res = await tui(qs);
