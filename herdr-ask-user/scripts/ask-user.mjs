@@ -39,9 +39,16 @@ function loadQuestions(src) {
     if (rec !== undefined && rec !== null && !(Number.isInteger(rec) && rec >= 1 && rec <= opts.length)) {
       throw new Failure(`Question ${i + 1}: "recommended" must be an option number 1-${opts.length}.`, 2);
     }
-    q.options = opts.map((o) => (typeof o === "string" ? { label: o } : o));
+    q.options = opts.map((o, n) => {
+      const opt = typeof o === "string" ? { label: o } : o;
+      return rec === n + 1 ? { ...opt, label: withoutMarker(opt.label) } : opt;
+    });
   });
   return qs;
+}
+
+function withoutMarker(label) {
+  return label.replace(/\s*[(\[{<（【]\s*recommend(?:ed)?\s*[)\]}>）】]/gi, "").trim() || label;
 }
 
 function validOption(o) {
