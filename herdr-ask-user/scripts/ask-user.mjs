@@ -524,9 +524,11 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
   }
 }
 
+const withMarker = (q, choice, text) => (choice && q.recommended === choice ? `${text} (recommended)` : text);
+
 function optionItem(q, n) {
   const { label, description } = q.options[n];
-  return { num: `${n + 1}. `, text: `${label}${q.recommended === n + 1 ? " (recommended)" : ""}`, description };
+  return { num: `${n + 1}. `, text: withMarker(q, n + 1, label), description };
 }
 
 const otherItem = (count) => ({ num: `${count + 1}. `, text: OTHER });
@@ -540,8 +542,8 @@ const questionFooter = (editing) =>
     : "←→ questions · ↑↓ move/scroll · 1-9 or tap choose · drag copy · Enter confirm · Esc cancel";
 const reviewFooter = () => "← back · Enter or tap submit · drag copy · Esc cancel";
 
-function summary(answers) {
-  return answers.map((a, i) => [`Q${i + 1}. `, a.question, a.answer + (a.notes ? `\n${a.notes}` : "")]);
+function summary(qs, answers) {
+  return answers.map((a, i) => [`Q${i + 1}. `, a.question, withMarker(qs[i], a.choice, a.answer) + (a.notes ? `\n${a.notes}` : "")]);
 }
 
 function pageRows(cols, head, title, context, items, footer, extra = 0) {
@@ -557,9 +559,9 @@ function tallestPage(qs, cols) {
     return pageRows(cols, questionHead(i, qs.length), q.question, q.context, items, questionFooter(false), 1);
   });
   if (qs.length > 1) {
-    const longest = (q) => q.options.map((o) => o.label).reduce((a, b) => (chars(b).length > chars(a).length ? b : a));
+    const longest = (q) => q.options.map((_, n) => optionItem(q, n).text).reduce((a, b) => (chars(b).length > chars(a).length ? b : a));
     const answers = qs.map((q) => ({ question: q.question, answer: longest(q) }));
-    rows.push(pageRows(cols, ...REVIEW, summary(answers), REVIEW_ITEMS, reviewFooter()));
+    rows.push(pageRows(cols, ...REVIEW, summary(qs, answers), REVIEW_ITEMS, reviewFooter()));
   }
   return Math.max(...rows);
 }
@@ -584,7 +586,7 @@ async function tui(qs) {
     let act;
     if (qi === qs.length) {
       const answers = states.map((st) => st.answer);
-      act = await page(review, ...REVIEW, summary(answers), REVIEW_ITEMS, false, false, reviewFooter);
+      act = await page(review, ...REVIEW, summary(qs, answers), REVIEW_ITEMS, false, false, reviewFooter);
       if (act[0] === "pick") return { cancelled: false, answers };
     } else {
       const q = qs[qi];
