@@ -5,19 +5,19 @@
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "agentsmd-auditor/SKILL.md",
-      "computedHash": "530059e7c6409820ddf0f068fce3d0f1e4dfb1cd00a1e8ee25854cf82d629ebe"
+      "computedHash": "079e1aca9fddc0766c0b03f1fc4b370b167da17aa39178fb77a8b20a0d95c32f"
     },
     "agentsmd-writer": {
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "agentsmd-writer/SKILL.md",
-      "computedHash": "6d400437caf30f4eb210b5085a403358b9da12fe832db2f16a0740c28e114486"
+      "computedHash": "67225041a1679f4dd36cccd94a0b886cd09a8a3eb98640fbe11d27bdaf17ff2c"
     },
     "beads": {
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "beads/SKILL.md",
-      "computedHash": "cf68e972c4ede8f688711c3db90e45d7c316009cdb8af67f23d8e0b6e9936a06"
+      "computedHash": "426ec2e4033d59df00fd116f3b6ef27548ffeaa0a4b57218db695fd372079b68"
     },
     "readme-writer": {
       "source": "mifkata/repo-skills",
@@ -35,7 +35,7 @@
       "source": "mifkata/repo-skills",
       "sourceType": "github",
       "skillPath": "skill-installer/SKILL.md",
-      "computedHash": "5e0009fc9810945889f175da4ec26c1faa52beca5db8ec0e74e6f25909c3a2b8"
+      "computedHash": "77a31f4c91217166ec71545386636e20f4e36194c69213427927c86f3a8db03f"
     }
   }
 }
