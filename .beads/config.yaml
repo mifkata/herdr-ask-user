@@ -74,3 +74,5 @@
 export:
     auto: false
     git-add: false
+prime:
+    max-memory-chars: 8000
