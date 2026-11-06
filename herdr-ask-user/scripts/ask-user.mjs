@@ -403,15 +403,33 @@ function header(s, head, title, context) {
   s.add("");
 }
 
-function cursorPos(buf, cur, width) {
-  const text = buf.join("");
-  const before = buf.slice(0, cur).join("").split("\n");
+function layout(buf, width) {
+  const rows = [];
+  let p = 0;
+  for (const para of buf.join("").split("\n")) {
+    const c = chars(para);
+    let i = 0;
+    do {
+      let end = Math.min(i + width, c.length);
+      if (end < c.length && c[end] !== " ") {
+        let j = end - 1;
+        while (j >= i && c[j] !== " ") j--;
+        if (j >= i) end = j + 1;
+      }
+      rows.push([p + i, p + end]);
+      i = end;
+    } while (i < c.length);
+    p += c.length + 1;
+  }
+  return rows;
+}
+
+function cursorPos(rows, cur) {
   let row = 0;
-  for (const p of before.slice(0, -1)) row += Math.max(1, Math.ceil(chars(p).length / width));
-  const line = chars(before[before.length - 1]).length;
-  const atLineEnd = cur === buf.length || buf[cur] === "\n";
-  if (line && line % width === 0 && atLineEnd) return [row + line / width - 1, width];
-  return [row + Math.floor(line / width), line % width];
+  rows.forEach(([start, end], n) => {
+    if (start <= cur && cur <= end) row = n;
+  });
+  return [row, cur - rows[row][0]];
 }
 
 async function page(st, head, title, context, labels, other, canNext, footer) {
@@ -437,11 +455,13 @@ async function page(st, head, title, context, labels, other, canNext, footer) {
     const cur = st.cur;
     const bufStart = s.lines.length;
     const indent = other ? " ".repeat(`  ${otherItem(labels.length).num}`.length) : "";
+    const rows = layout(buf, s.width() - indent.length);
     if (other && (editing || buf.length)) {
-      s.add(buf.length ? buf.join("") : "Type here…", buf.length ? "" : ST.dim, true, indent);
+      if (buf.length) for (const [a, b] of rows) s.lines.push([indent + buf.slice(a, b).join(""), ""]);
+      else s.add("Type here…", ST.dim, true, indent);
       spans[otherIdx] = [spans[otherIdx][0], s.lines.length - 1];
     }
-    const [row, col] = cursorPos(buf, cur, s.width() - indent.length);
+    const [row, col] = cursorPos(rows, cur);
     const cursorLine = bufStart + row;
     let [first, last] = spans[sel];
     if (editing) last = cursorLine;
